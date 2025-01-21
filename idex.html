@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Tebak Hewan Lucu dengan Keyzia</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #ffd6e7, #c1efff);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .game-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        h1 {
+            color: #ff69b4;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .game-area {
+            margin: 20px 0;
+        }
+
+        .emoji {
+            font-size: 4rem;
+            margin: 20px 0;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        input {
+            padding: 10px;
+            font-size: 1rem;
+            border: 2px solid #ff69b4;
+            border-radius: 10px;
+            margin: 10px 0;
+            width: 200px;
+        }
+
+        button {
+            background-color: #ff69b4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        .score {
+            font-size: 1.2rem;
+            color: #ff69b4;
+            margin: 20px 0;
+        }
+
+        .message {
+            margin: 20px 0;
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .keyzia-special {
+            color: #ff69b4;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>✨ Game Tebak Hewan Lucu ✨</h1>
+        
+        <!-- Welcome Screen -->
+        <div id="welcome-screen">
+            <p>Siapa namamu?</p>
+            <input type="text" id="player-name" placeholder="Masukkan namamu">
+            <button onclick="startGame()">Mulai Main!</button>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="hidden">
+            <div class="emoji" id="animal-emoji"></div>
+            <div class="game-area">
+                <p id="question"></p>
+                <input type="text" id="guess-input" placeholder="Jawab di sini">
+                <button onclick="checkAnswer()">Tebak!</button>
+            </div>
+            <p class="score">Skor: <span id="score">0</span></p>
+            <p class="message" id="message"></p>
+        </div>
+
+        <!-- End Screen -->
+        <div id="end-screen" class="hidden">
+            <p id="final-score"></p>
+            <button onclick="resetGame()">Main Lagi!</button>
+        </div>
+    </div>
+
+    <script>
+        const animals = [
+            { emoji: "🐱", name: "kucing", sound: "meong meong" },
+            { emoji: "🐰", name: "kelinci", sound: "hop hop" },
+            { emoji: "🐼", name: "panda", sound: "nyam nyam bambu" },
+            { emoji: "🦄", name: "unicorn", sound: "sparkle sparkle" },
+            { emoji: "🐢", name: "kura-kura", sound: "pelan pelan" },
+            { emoji: "🦋", name: "kupu-kupu", sound: "terbang indah" },
+            { emoji: "🐬", name: "lumba-lumba", sound: "cit cit" },
+            { emoji: "🦜", name: "burung", sound: "cuit cuit" },
+            { emoji: "🐕", name: "keyzia", sound: "guk guk", isSpecial: true }
+        ];
+
+        let currentAnimal;
+        let score = 0;
+        let questionsAsked = 0;
+        const TOTAL_QUESTIONS = 5;
+        let playerName = "";
+
+        function startGame() {
+            playerName = document.getElementById("player-name").value || "Teman";
+            document.getElementById("welcome-screen").classList.add("hidden");
+            document.getElementById("game-screen").classList.remove("hidden");
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (questionsAsked >= TOTAL_QUESTIONS) {
+                endGame();
+                return;
+            }
+
+            currentAnimal = animals[Math.floor(Math.random() * animals.length)];
+            document.getElementById("animal-emoji").textContent = currentAnimal.emoji;
+            
+            let questionText = `Hai ${playerName}! Aku adalah hewan yang berbunyi "${currentAnimal.sound}"\nAku hewan apa ya?`;
+            if (currentAnimal.isSpecial) {
+                questionText += "\n(Psst... Aku anjing yang spesial bernama Keyzia! 🎀)";
+            }
+            
+            document.getElementById("question").textContent = questionText;
+            document.getElementById("guess-input").value = "";
+            document.getElementById("message").textContent = "";
+        }
+
+        function checkAnswer() {
+            const guess = document.getElementById("guess-input").value.toLowerCase();
+            const message = document.getElementById("message");
+
+            if (guess === currentAnimal.name) {
+                score++;
+                if (currentAnimal.isSpecial) {
+                    message.innerHTML = "🎉 BENAR SEKALI! Kamu berhasil menebak Keyzia si anjing yang lucu! 🐕✨";
+                } else {
+                    message.textContent = "🎉 BENAR! Kamu Hebat! ✨";
+                }
+            } else {
+                if (currentAnimal.isSpecial) {
+                    message.innerHTML = `Aww, aku adalah Keyzia si anjing yang lucu! 🐕💖`;
+                } else {
+                    message.textContent = `Aww, jawabannya adalah ${currentAnimal.name}. Semangat ya! 💫`;
+                }
+            }
+
+            document.getElementById("score").textContent = score;
+            questionsAsked++;
+
+            setTimeout(nextQuestion, 1500);
+        }
+
+        function endGame() {
+            document.getElementById("game-screen").classList.add("hidden");
+            document.getElementById("end-screen").classList.remove("hidden");
+            
+            let message = `Permainan selesai, ${playerName}!\nSkormu: ${score} dari ${TOTAL_QUESTIONS}\n`;
+            if (score === TOTAL_QUESTIONS) {
+                message += "🌟 WAH KAMU SEMPURNA! HEBAT SEKALI! 🌟";
+            } else if (score >= TOTAL_QUESTIONS * 0.7) {
+                message += "🎈 Bagus sekali! Kamu pintar! 🎈";
+            } else {
+                message += "😊 Kamu sudah berusaha dengan baik! Main lagi yuk! 😊";
+            }
+            
+            document.getElementById("final-score").textContent = message;
+        }
+
+        function resetGame() {
+            score = 0;
+            questionsAsked = 0;
+            document.getElementById("score").textContent = "0";
+            document.getElementById("end-screen").classList.add("hidden");
+            document.getElementById("game-screen").classList.remove("hidden");
+            nextQuestion();
+        }
+
+        // Enable Enter key for input
+        document.getElementById("guess-input").addEventListener("keyup", function(event) {
+            if (event.key === "Enter") {
+                checkAnswer();
+            }
+        });
+
+        document.getElementById("player-name").addEventListener("keyup", function(event) {
+            if (event.key === "Enter") {
+                startGame();
+            }
+        });
+    </script>
+</body>
+</html>
